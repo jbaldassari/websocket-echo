@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <title>WebSocket Echo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script language="JavaScript">
+
+      const messages = [];
+      let websocket;
+
+      function enable(selector) {
+        $(selector).prop('disabled', false);
+      }
+
+      function disable(selector) {
+        $(selector).prop('disabled', true);
+      }
+
+      function appendMessage(message) {
+        messages.push(`${new Date().toUTCString()}: ${message}`);
+        $('#output').val(messages.join('\n'));
+      }
+
+      $(document).ready(function () {
+        $('#connect').click(function () {
+          disable('#connect');
+          const url = `ws://${window.location.href.split('://')[1]}`;
+          appendMessage(`[Connecting to ${url}]`);
+          websocket = new WebSocket(url);
+          websocket.onopen = () => {
+            appendMessage('[Connected]');
+            enable('#disconnect');
+            enable('#send');
+          };
+          websocket.onclose = () => {
+            appendMessage('[Disconnected]');
+            enable('#connect');
+          };
+          websocket.onmessage = (event) => {
+            appendMessage(`<= "${event.data}"`);
+          };
+        });
+        $('#disconnect').click(function () {
+          disable('#disconnect');
+          disable('#send');
+          if (websocket) {
+            websocket.close();
+          }
+        });
+        $('#send').click(function () {
+          if (websocket) {
+            const message = $("#message").val();
+            appendMessage(`=> "${message}"`);
+            $("#message").val("");
+            websocket.send(message);
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <p>
+      <button id="connect">Connect</button>
+      <button id="disconnect" disabled>Disconnect</button>
+    </p>
+    <p>
+      <textarea id="output" cols="80" rows="25" placeholder="Ooutput will be displayed here..." readonly></textarea>
+    </p>
+    <p>
+      <input id="message" type="text" placeholder="Enter message..." ></input>
+    </p>
+    <p>
+      <button id="send" disabled>Send</button>
+    </p>
+  </body>
+</html>
