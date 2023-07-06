@@ -1,7 +1,7 @@
 <html>
   <head>
     <title>WebSocket Echo</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="public/jquery.min.js"></script>
     <script language="JavaScript">
 
       const messages = [];
@@ -23,7 +23,7 @@
       $(document).ready(function () {
         $('#connect').click(function () {
           disable('#connect');
-          const url = `ws://${window.location.href.split('://')[1]}`;
+          const url = `${window.location.href.split('://')[0].replace("http", "ws")}://${window.location.href.split('://')[1]}`;
           appendMessage(`[Connecting to ${url}]`);
           websocket = new WebSocket(url);
           websocket.onopen = () => {
