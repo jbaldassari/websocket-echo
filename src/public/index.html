@@ -16,8 +16,13 @@
       }
 
       function appendMessage(message) {
-        messages.push(`${new Date().toUTCString()}: ${message}`);
+        messages.unshift(`${new Date().toUTCString()}: ${message}`);
         $('#output').val(messages.join('\n'));
+      }
+
+      function clearMessages() {
+        messages.length = 0;
+        $('#output').val("");
       }
 
       $(document).ready(function () {
@@ -29,6 +34,7 @@
           websocket.onopen = () => {
             appendMessage('[Connected]');
             enable('#disconnect');
+            enable('#message');
             enable('#send');
           };
           websocket.onclose = () => {
@@ -42,9 +48,14 @@
         $('#disconnect').click(function () {
           disable('#disconnect');
           disable('#send');
+          $("#message").val("");
+          disable('#message');
           if (websocket) {
             websocket.close();
           }
+        });
+        $('#clear').click(function () {
+          clearMessages();
         });
         $('#send').click(function () {
           if (websocket) {
@@ -61,12 +72,13 @@
     <p>
       <button id="connect">Connect</button>
       <button id="disconnect" disabled>Disconnect</button>
+      <button id="clear">Clear</button>
     </p>
     <p>
       <textarea id="output" cols="80" rows="25" placeholder="Ooutput will be displayed here..." readonly></textarea>
     </p>
     <p>
-      <input id="message" type="text" placeholder="Enter message..." ></input>
+      <input id="message" type="text" placeholder="Enter message..." disabled></input>
     </p>
     <p>
       <button id="send" disabled>Send</button>
